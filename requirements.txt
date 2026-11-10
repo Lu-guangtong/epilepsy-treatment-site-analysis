@@ -1,0 +1,14 @@
+# Observed primary dependencies, not a tested clean-environment lock.
+numpy==2.4.6
+scipy==1.18.0
+pandas==3.0.3
+scikit-learn==1.9.0
+mne==1.12.1
+mne-connectivity==0.8.1
+nibabel==5.4.2
+matplotlib==3.11.0
+openpyxl==3.1.5
+psutil==7.2.2
+threadpoolctl==3.6.0
+PyYAML==6.0.3
+pytest==9.1.1

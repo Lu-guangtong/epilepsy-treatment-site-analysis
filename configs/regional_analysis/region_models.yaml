@@ -1,0 +1,121 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+run_id: regional_analysis
+average_precision_implementation: sklearn_equivalent_tie_grouped_v2
+rank_tie_method: average
+network_matrices_root: ${SEEG_OUTPUT_ROOT}/data_derived/network_matrices
+network_matrix_manifest: ${SEEG_OUTPUT_ROOT}/data_derived/network_matrices/network_matrix_manifest.csv
+audit_workbook: ${SEEG_DATA_ROOT}/annotations/clinical_annotations.xlsx
+alignment_audit_root: ${SEEG_OUTPUT_ROOT}/data_derived/region_modeling_audit
+region_features_root: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_features
+region_modeling_root: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models
+by_band_output_root: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models
+network_methods:
+- wpli2_debiased
+- imcoh
+windows:
+- baseline
+- early_ictal
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+matrix_value_transforms:
+  wpli2_debiased: clip_negative_to_zero
+  imcoh: absolute_value
+region_key_columns:
+- desikan_killiany_label
+- tissue_class
+- is_white_csf_ventricle_unknown
+labels:
+  mode: ablation_top4_rule
+  output_filename: region_labels_ablation_top4_rule.csv
+  rule:
+    eligible_region_group: region_model_eligible
+    ranking_field: n_doctor_burned_pairs_after_bad_channel_removal
+    ranking_direction: descending
+    tie_break_field: display_order
+    tie_break_direction: ascending
+    top_k: 4
+    expand_boundary_ties: false
+    burned_rate_numerator: n_doctor_burned_pairs_after_bad_channel_removal
+    burned_rate_denominator: n_bipolar_pairs_after_bad_channel_removal
+    burned_rate_strictly_greater_than: 0.5
+    burned_count_strictly_greater_than: 5
+    threshold_logic: or
+  expected:
+    label_rows: 111
+    primary_rows: 84
+    positive_rows: 22
+    negative_rows: 62
+    changed_rows: 0
+    changes: []
+features:
+  epsilon: 1.0e-06
+  trial_base_features:
+  - within_mean
+  - within_q90
+  - out_mean
+  - out_q90
+  - node_strength_mean_normalized
+  - node_strength_q90_normalized
+  patient_aggregations:
+  - trial_mean
+  - trial_median
+  - trial_iqr
+  - trial_q90
+  - trial_top25_fraction_within_patient
+  qc_fields:
+  - n_region_nodes
+  - n_within_edges
+  - n_out_edges
+  - n_nan_edges
+modeling:
+  validation: leave_one_patient_out
+  inner_validation: leave_one_training_patient_out
+  univariate_orientation_rule: inner_training_positive_vs_negative_median
+  primary_metric: patient_macro_AUPRC
+  primary_metric_scope: within_patient_then_macro_across_patients
+  top_k_features: 5
+  feature_non_missing_threshold: 0.7
+  node_strength_feature_policy: normalized_only
+  imputer: median
+  scaler: robust_iqr
+  model: logistic_regression
+  penalty: l2
+  class_weight: balanced
+  solver: liblinear
+  c_values:
+  - 0.01
+  - 0.1
+  - 1.0
+  - 10.0
+  metrics:
+  - average_precision
+  - normalized_average_precision
+  - AUROC
+  supplemental_ranking_metrics:
+  - within_patient_rank_pooled_AUPRC
+  - pooled_raw_AUPRC
+  - top1_recall
+  - top2_recall
+  - top3_recall
+  - top20pct_recall
+  n_permutations_default: 1000
+  n_bootstrap_default: 2000
+  permutation_checkpoint_every: 25
+  random_seed: 20260706
+parallel:
+  default_n_jobs: 6
+  hard_max_n_jobs: 6
+  blas_threads_per_worker: 1
+  memory_reserve_gb: 1.5
+  estimated_worker_memory_gb: 0.3
+  minimum_available_memory_gb_to_start: 1.75
+  minimum_free_memory_gb_during_run: 1.0
+  max_tasks_per_child: 2000

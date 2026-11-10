@@ -1,0 +1,86 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+run_id: regional_analysis_region_coverage
+average_precision_implementation: sklearn_equivalent_tie_grouped_v2
+rank_tie_method: average
+artifact_policy: original_unmasked_for_coverage_experiment
+window_variant: original_baseline_35s_early_10s
+seizure_sampling: all_available_seizures
+inputs:
+  region_patient_features: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_features/region_patient_features_unlabeled.csv
+  audit_workbook: ${SEEG_DATA_ROOT}/annotations/clinical_annotations.xlsx
+output_root: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_coverage_incremental
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+modeling:
+  top_k_features: 5
+  feature_non_missing_threshold: 0.7
+  expected_candidates_per_band: 240
+  c_values:
+  - 0.01
+  - 0.1
+  - 1.0
+  - 10.0
+  lambda_values:
+  - 0.0
+  - 0.25
+  - 0.5
+  - 0.75
+  - 1.0
+  connectivity_imputer: training_fold_median
+  connectivity_scaler: training_fold_robust_iqr
+  coverage_residualizer: Ridge(alpha=1.0)
+  coverage_only_score: within_patient_n_region_nodes_average_percentile_rank
+inference:
+  n_conditional_permutations: 5000
+  n_primary_bootstrap: 5000
+  n_label_rule_bootstrap: 2000
+  permutation_seed: 2026090101
+  bootstrap_seed: 2026090102
+  conditional_strata: patient_x_within_patient_node_count_median_layer
+  median_ties: low
+  multiple_testing: one_sided_maxT_across_eight_prespecified_bands
+execution:
+  n_jobs: 6
+  checkpoint_every: 25
+  run_complete_delete_patient_refits: true
+expected:
+  primary_rows: 84
+  primary_positive: 22
+  primary_negative: 62
+  patients: 8
+  frequency_bands: 8
+  predictions_per_model: 672
+  folds_per_learned_model: 64
+label_rules:
+- primary
+- top3
+- top5
+- no_topk_limit
+- rate_gt_0p40
+- rate_gt_0p60
+- count_gt_3
+- count_gt_7
+base_label_rule:
+  eligible_region_group: region_model_eligible
+  ranking_field: n_doctor_burned_pairs_after_bad_channel_removal
+  ranking_direction: descending
+  tie_break_field: display_order
+  tie_break_direction: ascending
+  top_k: 4
+  expand_boundary_ties: false
+  burned_rate_numerator: n_doctor_burned_pairs_after_bad_channel_removal
+  burned_rate_denominator: n_bipolar_pairs_after_bad_channel_removal
+  burned_rate_strictly_greater_than: 0.5
+  burned_count_strictly_greater_than: 5
+  threshold_logic: or
+protected_paths:
+- ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models
+- ${SEEG_OUTPUT_ROOT}/data_derived/region_features

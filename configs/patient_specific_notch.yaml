@@ -1,0 +1,16 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+input_root: ${SEEG_OUTPUT_ROOT}/data_derived/notched
+output_root: ${SEEG_OUTPUT_ROOT}/data_derived/custom_notched
+conversion_mode: patient_specific_custom_notch
+filter:
+  notch_widths_hz: 2.0
+  trans_bandwidth_hz: 1.0
+  method: fir
+  phase: zero
+  fir_window: hamming
+  fir_design: firwin
+  pad: reflect_limited
+patient_freqs_hz:
+  demo001:
+  - 60.0

@@ -1,0 +1,97 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+network_matrix_manifest: ${SEEG_OUTPUT_ROOT}/data_derived/network_matrices/network_matrix_manifest.csv
+line_length_manifest: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_metrics_raw/line_length/line_length_matrix_manifest.csv
+band_power_manifest: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_metrics_raw/band_power/band_power_matrix_manifest.csv
+audit_workbook: ${SEEG_DATA_ROOT}/annotations/clinical_annotations.xlsx
+native_region_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/lopo_region_predictions_by_band.csv
+native_region_metrics: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/lopo_region_metrics_by_band.csv
+native_electrode_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_modeling_by_band/lopo_electrode_predictions_by_band.csv
+native_electrode_metrics: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_modeling_by_band/lopo_electrode_metrics_by_band.csv
+feature_root: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/features
+modeling_root: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models
+patients:
+- demo001
+- demo002
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+windows:
+- baseline
+- early_ictal
+network_to_electrode:
+  methods:
+  - wpli2_debiased
+  - imcoh
+  matrix_transforms:
+    wpli2_debiased: clip_negative_to_zero
+    imcoh: absolute_value
+  node_features:
+  - same_region_mean
+  - same_region_q90
+  - other_region_mean
+  - other_region_q90
+  - global_connection_mean_normalized
+  - global_connection_q90
+  epsilon: 1.0e-06
+  patient_aggregations:
+  - trial_mean
+  - trial_median
+  - trial_q90
+  - trial_iqr
+  rank_top_fraction: 0.25
+  expected_candidates_per_method_per_band: 120
+electrode_to_region:
+  methods:
+  - line_length_rate
+  - absolute_band_power_multitaper
+  contact_aggregations:
+  - contact_mean
+  - contact_q90
+  metric_transform: log10_strictly_positive
+  rank_top_fraction: 0.25
+  patient_aggregations:
+  - trial_mean
+  - trial_median
+  - trial_q90
+  - trial_iqr
+  expected_candidates_per_method_aggregation_per_band: 144
+modeling:
+  validation: leave_one_patient_out
+  inner_validation: leave_one_training_patient_out
+  top_k_features: 5
+  feature_non_missing_threshold: 0.7
+  correlation_pruning_spearman_abs_electrode_target: 0.9
+  imputer: median
+  scaler: robust_iqr
+  model: logistic_regression
+  penalty: l2
+  class_weight: balanced
+  solver: liblinear
+  c_values:
+  - 0.01
+  - 0.1
+  - 1.0
+  - 10.0
+  threshold_selection_electrode_target: inner_oof_maximize_f1
+  n_permutations_default: 0
+  n_bootstrap_default: 2000
+  permutation_n_jobs_default: 6
+  permutation_checkpoint_size: 10
+  random_seed: 20260706
+expected:
+  network_matrix_rows: 1952
+  metric_matrix_rows_per_method_all_bands: 1098
+  metric_matrix_rows_per_method_selected_bands: 976
+  primary_electrode_rows: 628
+  region_feature_rows: 107
+  primary_region_rows: 84
+  network_to_electrode_prediction_rows: 5024
+  electrode_to_region_prediction_rows: 672
+  folds_per_direction: 64

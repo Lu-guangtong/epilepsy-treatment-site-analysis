@@ -1,0 +1,27 @@
+# Do not rely on ignores as a security boundary.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env
+.env.*
+!.env.example
+private/
+*private*.json
+*private*.yaml
+*private*.yml
+data/
+data_derived/
+outputs/
+logs/
+*.edf
+*.fif
+*.mat
+*.xlsx
+*.parquet
+*.pkl
+*.npz
+*.npy
+
+work/
+.ruff_cache/

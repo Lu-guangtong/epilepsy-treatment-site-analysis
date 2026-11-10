@@ -1,0 +1,51 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+coordinate_sources:
+  bipolar_tsv_root: ${SEEG_AUX_ROOT}/brainstorm_electrode_region_labels/bipolar_channel
+  single_contact_tsv_root: ${SEEG_AUX_ROOT}/brainstorm_electrode_region_labels/single_contact
+  brainstorm_data_root: ${SEEG_BRAINSTORM_ROOT}/data
+  formal_bipolar_manifest: ${SEEG_OUTPUT_ROOT}/data_derived/bipolar/bipolar_manifest.csv
+  output_manifest: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_coordinates/bipolar_coordinates.csv
+patient_folder_map:
+  demo001: demo_folder_001
+  demo002: demo_folder_002
+modeling:
+  predictions: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_modeling_by_band/lopo_electrode_predictions_by_band.csv
+  output_root: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_graph_smoothing
+  frequency_bands:
+  - delta
+  - theta
+  - alpha
+  - beta
+  - low_gamma
+  - high_gamma
+  - ripple
+  - fast_ripple
+  - broadband_1_500
+graph:
+  coordinate_space: SCS
+  coordinate_unit: mm
+  neighbor_rule: mutual_knn_with_radius_cap
+  n_neighbors: 3
+  max_distance_mm: 10.0
+  gaussian_sigma_mm: 5.0
+  isolated_node_rule: identity
+smoothing:
+  method: personalized_pagerank_restart_diffusion
+  score_domain: probability
+  alpha: 0.8
+  direct_self_evidence: 0.2
+  hard_classification: preserve_original_positive_count_within_patient_band
+  primary_interpretation: continuous_ranking
+  analysis_scope: posthoc_exploratory
+statistics:
+  patient_bootstrap_iterations: 2000
+  spatial_label_permutations: 5000
+  random_seed: 20260725
+expected:
+  formal_bipolar_coordinates: 1072
+  primary_modeling_contacts: 628
+  frequency_bands: 9
+  prediction_rows: 5652
+  graph_edges: 685
+  isolated_nodes: 12

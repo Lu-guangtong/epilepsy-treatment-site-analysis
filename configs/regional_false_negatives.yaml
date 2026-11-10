@@ -1,0 +1,32 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+inputs:
+  contact_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/region_contact_residual_burden/region_contact_predictions_by_band.csv
+output_root: ${SEEG_OUTPUT_ROOT}/data_derived/fn_suspicious_region_concentration
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+analysis:
+  suspicious_region_status: 'yes'
+  non_suspicious_region_status: 'no'
+  patient_bootstrap_iterations: 2000
+  within_patient_permutations: 10000
+  random_seed: 20260824
+  primary_permutation_statistic: fn_enrichment_vs_ablated_distribution
+  interpretation: posthoc_descriptive_fn_spatial_concentration
+expected:
+  patients: 8
+  prediction_rows: 5024
+  primary_contacts: 628
+  primary_regions: 84
+  suspicious_regions: 22
+  non_suspicious_regions: 62
+  suspicious_contacts: 320
+  clinician_ablated_contacts: 280
+  suspicious_clinician_ablated_contacts: 239

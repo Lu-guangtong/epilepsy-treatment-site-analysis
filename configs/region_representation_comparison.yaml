@@ -1,0 +1,80 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+experiment_name: cross_scale_models_ablation_top4_rule
+audit_workbook: ${SEEG_DATA_ROOT}/annotations/clinical_annotations.xlsx
+region_feature_file: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/features/electrode_to_region_patient_features_unlabeled.csv
+region_label_file: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/region_labels_ablation_top4_rule.csv
+region_label_rule:
+  eligible_region_group: region_model_eligible
+  ranking_field: n_doctor_burned_pairs_after_bad_channel_removal
+  ranking_direction: descending
+  tie_break_field: display_order
+  tie_break_direction: ascending
+  top_k: 4
+  expand_boundary_ties: false
+  burned_rate_numerator: n_doctor_burned_pairs_after_bad_channel_removal
+  burned_rate_denominator: n_bipolar_pairs_after_bad_channel_removal
+  burned_rate_strictly_greater_than: 0.5
+  burned_count_strictly_greater_than: 5
+  threshold_logic: or
+native_region_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/lopo_region_predictions_by_band.csv
+native_region_metrics: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/lopo_region_metrics_by_band.csv
+native_region_multiple_comparison: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/region_band_multiple_comparison_correction.csv
+native_electrode_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_modeling_by_band/lopo_electrode_predictions_by_band.csv
+reused_network_to_electrode:
+  observed_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_predictions.csv
+  observed_metrics: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_metrics_by_band.csv
+  observed_folds: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_fold_details.csv
+  observed_comparison: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_method_comparison.csv
+output_root: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/ablation_top4_rule
+patients:
+- demo001
+- demo002
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+electrode_to_region:
+  methods:
+  - line_length_rate
+  - absolute_band_power_multitaper
+  contact_aggregations:
+  - contact_mean
+  - contact_q90
+  expected_candidates_per_method_aggregation_per_band: 144
+modeling:
+  validation: leave_one_patient_out
+  inner_validation: leave_one_training_patient_out
+  univariate_orientation_rule: inner_training_positive_vs_negative_median
+  univariate_orientation_scope: inner_training_patients_only
+  top_k_features: 5
+  feature_non_missing_threshold: 0.7
+  imputer: median
+  scaler: robust_iqr
+  model: logistic_regression
+  penalty: l2
+  class_weight: balanced
+  solver: liblinear
+  c_values:
+  - 0.01
+  - 0.1
+  - 1.0
+  - 10.0
+  n_bootstrap_default: 2000
+  random_seed: 20260706
+expected:
+  label_rows: 111
+  region_feature_rows: 107
+  primary_region_rows: 84
+  positive_region_rows: 22
+  negative_region_rows: 62
+  electrode_to_region_prediction_rows: 672
+  electrode_to_region_fold_rows: 64
+  reused_network_to_electrode_prediction_rows: 5024
+  reused_network_to_electrode_fold_rows: 64
+  metric_rows_per_direction: 8

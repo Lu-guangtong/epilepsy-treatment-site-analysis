@@ -1,0 +1,67 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+run_id: regional_analysis
+average_precision_implementation: sklearn_equivalent_tie_grouped_v2
+rank_tie_method: average
+artifact_policy: none_original_baseline
+window_variant: original_minus40_minus5_to_0_10
+seizure_sampling: all_available
+inputs:
+  core_graph_script: ${SEEG_REPO_ROOT}/scripts/run_electrode_graph_smoothing.py
+  predictions: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_modeling_by_band/lopo_electrode_predictions_by_band.csv
+  coordinates: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_coordinates/bipolar_coordinates.csv
+output_root: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/shaft_graph
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+graph:
+  coordinate_space: SCS
+  coordinate_unit: mm
+  neighbor_rule: mutual_knn_with_radius_cap
+  n_neighbors: 3
+  gaussian_sigma_mm: 5.0
+  radii_mm:
+  - 5.0
+  - 7.5
+  - 10.0
+  - 12.5
+  - 15.0
+  edge_scopes:
+  - all
+  - same_shaft
+  - cross_shaft
+  isolated_node_rule: identity
+  ppr_method: personalized_pagerank_restart_diffusion
+  ppr_alpha: 0.8
+  interpretation: posthoc_descriptive
+nulls:
+  methods:
+  - within_shaft_shuffle
+  - circular_shift_reverse
+  n_permutations: 5000
+  tail: lower
+  random_seed: 20260901
+  checkpoint_interval: 100
+expected:
+  contacts: 628
+  patients: 8
+  patient_shafts: 106
+  mixed_label_shafts: 55
+  primary_radius_mm: 10.0
+  all_edges: 685
+  same_shaft_edges: 498
+  cross_shaft_edges: 187
+  all_edges_by_radius:
+    '5.0': 526
+    '7.5': 670
+    '10.0': 685
+    '12.5': 702
+    '15.0': 707
+protected_paths:
+- ${SEEG_OUTPUT_ROOT}/data_derived/electrode_graph_smoothing

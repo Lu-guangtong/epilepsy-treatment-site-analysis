@@ -1,0 +1,104 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+run_id: regional_analysis
+average_precision_implementation: sklearn_equivalent_tie_grouped_v2
+rank_tie_method: average
+inputs:
+  corrected_region_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/lopo_region_predictions_by_band.csv
+  corrected_region_labels: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/region_labels_ablation_top4_rule.csv
+  local_signal_region_features: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/features/electrode_to_region_patient_features_unlabeled.csv
+  native_contact_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_modeling_by_band/lopo_electrode_predictions_by_band.csv
+  reused_network_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_predictions.csv
+  reused_network_metrics: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_metrics_by_band.csv
+  reused_network_folds: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_fold_details.csv
+  reused_network_comparison: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_method_comparison.csv
+output_root: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/cross_scale_analysis
+protected_input_roots:
+- ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models
+- ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_modeling_by_band
+- ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed
+region_feature_file: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/features/electrode_to_region_patient_features_unlabeled.csv
+region_label_file: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/region_labels_ablation_top4_rule.csv
+native_region_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/lopo_region_predictions_by_band.csv
+native_electrode_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_modeling_by_band/lopo_electrode_predictions_by_band.csv
+reused_network_to_electrode:
+  observed_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_predictions.csv
+  observed_metrics: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_metrics_by_band.csv
+  observed_folds: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_fold_details.csv
+  observed_comparison: ${SEEG_OUTPUT_ROOT}/data_derived/cross_scale_models/observed/observed_method_comparison.csv
+patients:
+- demo001
+- demo002
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+electrode_to_region:
+  methods:
+  - line_length_rate
+  - absolute_band_power_multitaper
+  contact_aggregations:
+  - contact_mean
+  - contact_q90
+  expected_candidates_per_method_aggregation_per_band: 144
+modeling:
+  validation: leave_one_patient_out
+  inner_validation: leave_one_training_patient_out
+  univariate_orientation_rule: inner_training_positive_vs_negative_median
+  univariate_orientation_scope: inner_training_patients_only
+  top_k_features: 5
+  feature_non_missing_threshold: 0.7
+  imputer: median
+  scaler: robust_iqr
+  model: logistic_regression
+  penalty: l2
+  class_weight: balanced
+  solver: liblinear
+  c_values:
+  - 0.01
+  - 0.1
+  - 1.0
+  - 10.0
+  random_seed: 20260706
+analysis:
+  local_bootstrap_iterations: 2000
+  residual_bootstrap_iterations: 2000
+  random_region_rankings: 2000
+  fn_within_patient_permutations: 10000
+  capture_curve_grid_points: 101
+  random_seed: 20260824
+expected:
+  label_rows: 111
+  primary_region_rows: 84
+  positive_region_rows: 22
+  negative_region_rows: 62
+  region_feature_rows: 107
+  electrode_to_region_prediction_rows: 672
+  electrode_to_region_fold_rows: 64
+  reused_network_to_electrode_prediction_rows: 5024
+  reused_network_to_electrode_fold_rows: 64
+  metric_rows_per_direction: 8
+  patients: 8
+  primary_regions: 84
+  suspicious_regions: 22
+  non_suspicious_regions: 62
+  primary_contacts: 628
+  doctor_ablated_contacts: 280
+  suspicious_region_doctor_ablated_contacts: 239
+  contact_prediction_rows: 5024
+  region_prediction_rows: 672
+expected_fn:
+  patients: 8
+  prediction_rows: 5024
+  primary_contacts: 628
+  primary_regions: 84
+  suspicious_regions: 22
+  non_suspicious_regions: 62
+  suspicious_contacts: 320
+  clinician_ablated_contacts: 280
+  suspicious_clinician_ablated_contacts: 239

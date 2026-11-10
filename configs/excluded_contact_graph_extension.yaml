@@ -1,0 +1,58 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+inputs:
+  coordinates: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_coordinates/bipolar_coordinates.csv
+  anchor_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_graph_smoothing/graph_smoothed_predictions.csv
+  audit_workbook: ${SEEG_DATA_ROOT}/annotations/clinical_annotations.xlsx
+  output_root: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_graph_smoothing_excluded
+patients:
+- demo001
+- demo002
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+- broadband_1_500
+graph:
+  coordinate_space: SCS
+  coordinate_unit: mm
+  neighbor_rule: mutual_knn_with_radius_cap
+  n_neighbors: 3
+  max_distance_mm: 10.0
+  gaussian_sigma_mm: 5.0
+extension:
+  method: clamped_harmonic_extension
+  eligible_anchor_rule: is_white_csf_ventricle_unknown == false
+  excluded_target_rule: is_white_csf_ventricle_unknown == true
+  primary_anchor_score: smoothed_score
+  sensitivity_anchor_score: y_score
+  unanchored_component_rule: leave_nan
+  hard_threshold_rule: leave_one_patient_out_macro_f1
+  threshold_tie_break: closest_to_0.5_then_lower
+  analysis_scope: posthoc_exploratory_spatial_extension
+statistics:
+  patient_bootstrap_iterations: 2000
+  within_patient_label_permutations: 0
+  permutation_metrics:
+  - AUPRC
+  - normalized_AUPRC
+  - AUROC
+  random_seed: 20260725
+expected:
+  all_formal_contacts: 1072
+  eligible_anchor_contacts: 628
+  excluded_contacts: 444
+  excluded_burned: 115
+  excluded_unburned: 329
+  reachable_excluded_contacts: 434
+  unreachable_excluded_contacts: 10
+  direct_anchor_excluded_contacts: 231
+  full_graph_edges: 1290
+  full_graph_isolated_nodes: 0
+  full_prediction_rows: 3996
+  reachable_prediction_rows: 3906

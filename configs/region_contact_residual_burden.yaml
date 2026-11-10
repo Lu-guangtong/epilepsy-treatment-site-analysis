@@ -1,0 +1,37 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+inputs:
+  region_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/lopo_region_predictions_by_band.csv
+  region_labels: ${SEEG_OUTPUT_ROOT}/data_derived/regional_analysis/region_models/region_labels_ablation_top4_rule.csv
+  contact_predictions: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_modeling_by_band/lopo_electrode_predictions_by_band.csv
+output_root: ${SEEG_OUTPUT_ROOT}/data_derived/region_contact_residual_burden
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+analysis:
+  suspicious_region_status: 'yes'
+  non_suspicious_region_status: 'no'
+  region_score_column: y_score
+  contact_score_column: y_score
+  contact_prediction_column: y_pred
+  patient_bootstrap_iterations: 2000
+  random_region_rankings: 2000
+  capture_curve_grid_points: 101
+  random_seed: 20260824
+  interpretation: posthoc_cross_scale_residual_ablation_burden
+expected:
+  patients: 8
+  primary_regions: 84
+  suspicious_regions: 22
+  non_suspicious_regions: 62
+  primary_contacts: 628
+  doctor_ablated_contacts: 280
+  suspicious_region_doctor_ablated_contacts: 239
+  contact_prediction_rows: 5024
+  region_prediction_rows: 672

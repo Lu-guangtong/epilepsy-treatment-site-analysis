@@ -1,0 +1,91 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+line_length_manifest: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_metrics_raw/line_length/line_length_matrix_manifest.csv
+band_power_manifest: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_metrics_raw/band_power/band_power_matrix_manifest.csv
+audit_workbook: ${SEEG_DATA_ROOT}/annotations/clinical_annotations.xlsx
+feature_root: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_features
+modeling_root: ${SEEG_OUTPUT_ROOT}/data_derived/electrode_pair_modeling_by_band
+methods:
+- line_length_rate
+- absolute_band_power_multitaper
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+- broadband_1_500
+windows:
+- baseline
+- early_ictal
+features:
+  transform: log10_strictly_positive
+  window_features:
+  - log_mean
+  - log_median
+  - log_q75
+  - log_q90
+  - log_iqr
+  - log_mad
+  - log_peak
+  - log_peak_prominence
+  - log_theil_sen_slope_per_sec
+  contrast_features:
+  - median_log10_change
+  - q90_log10_change
+  - peak_log10_change
+  - robust_median_shift
+  - early_exceed_baseline_q95_fraction
+  - early_positive_excess_over_baseline_q95_mean
+  - log_iqr_change
+  - log_mad_change
+  - log_slope_change
+  - early_peak_latency_fraction
+  rank_source_features:
+  - early__log_median
+  - early__log_q90
+  - contrast__median_log10_change
+  - contrast__robust_median_shift
+  - contrast__early_positive_excess_over_baseline_q95_mean
+  patient_aggregations:
+  - trial_mean
+  - trial_median
+  - trial_q90
+  - trial_iqr
+  rank_top_fraction: 0.25
+  expected_candidates_per_method_per_band: 144
+modeling:
+  validation: leave_one_patient_out
+  inner_validation: leave_one_training_patient_out
+  primary_metric: patient_macro_AUPRC
+  top_k_features: 5
+  feature_non_missing_threshold: 0.7
+  correlation_pruning_spearman_abs: 0.9
+  imputer: median
+  scaler: robust_iqr
+  model: logistic_regression
+  penalty: l2
+  class_weight: balanced
+  solver: liblinear
+  c_values:
+  - 0.01
+  - 0.1
+  - 1.0
+  - 10.0
+  threshold_selection: inner_oof_maximize_f1
+  n_permutations_default: 1000
+  n_bootstrap_default: 2000
+  permutation_n_jobs_default: 6
+  random_seed: 20260706
+expected:
+  matrix_tasks_per_method: 1098
+  final_bipolar_after_bad_removal: 1072
+  primary_bipolar_pairs: 628
+  positive_pairs: 280
+  negative_pairs: 348
+  trial_feature_rows: 88434
+  patient_feature_rows: 628
+  prediction_rows: 5652

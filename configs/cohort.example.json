@@ -1,0 +1,15 @@
+{
+  "release_example_only": true,
+  "cohort": {
+    "patients": ["demo001", "demo002"],
+    "expected_full_counts": {"demo001": 2, "demo002": 3},
+    "patient_to_bst_folder": {"demo001": "demo_folder_001", "demo002": "demo_folder_002"},
+    "manual_exclude_bipolars": {}
+  },
+  "continuous_recording": {
+    "patient": "demo001",
+    "trials": [1, 2],
+    "smoke_trial": 1,
+    "single_trial_manifest_filename": "single_trial_convert_manifest.csv"
+  }
+}

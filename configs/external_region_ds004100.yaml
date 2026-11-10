@@ -1,0 +1,41 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+label_rule_id: dk_gray_both_end_treated_ge1_20260914_v1
+inputs:
+  rule: ${SEEG_EXTERNAL_REGION_ROOT}/labels_both_end_ge1_20260914_v1/rule.json
+  cohort: ${SEEG_EXTERNAL_REGION_ROOT}/labels_both_end_ge1_20260914_v1/cohort.json
+  labels: ${SEEG_EXTERNAL_REGION_ROOT}/labels_both_end_ge1_20260914_v1/region_labels_primary.json
+  signals: ${SEEG_EXTERNAL_REGION_ROOT}/labels_both_end_ge1_20260914_v1/preprocessed_signal_manifest_active.json
+  anatomy: ${SEEG_EXTERNAL_REGION_ROOT}/bipolar_anatomy_manifest.json
+  counts: ${SEEG_EXTERNAL_REGION_ROOT}/region_counts_all_tissues.json
+  pair_audit: ${SEEG_EXTERNAL_REGION_ROOT}/bipolar_treatment_count_audit.json
+expected:
+  patients: 19
+  analysis_runs: 71
+  common_pairs: 2221
+  gray_regions: 307
+  positive_regions: 34
+  negative_regions: 273
+primary_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+supplementary_bands:
+- ripple
+sampling_policy: native_no_resampling_no_band_clipping
+acquisition_passband_status: unverified
+modeling:
+  top_k_features: 5
+  non_missing_threshold: 0.7
+  c_values:
+  - 0.01
+  - 0.1
+  - 1.0
+  - 10.0
+  seed: 20260706
+  n_permutations: 1000
+  n_bootstrap: 2000
+default_output: ${SEEG_OUTPUT_ROOT}/external/region_classification_ds004100_20260914_v1

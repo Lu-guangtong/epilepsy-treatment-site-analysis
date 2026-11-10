@@ -1,0 +1,48 @@
+# Example configuration. See docs/configuration.md for private inputs.
+release_example_only: true
+network_matrices_root: ${SEEG_OUTPUT_ROOT}/data_derived/network_matrices
+network_matrix_manifest: ${SEEG_OUTPUT_ROOT}/data_derived/network_matrices/network_matrix_manifest.csv
+audit_workbook: ${SEEG_DATA_ROOT}/annotations/clinical_annotations.xlsx
+region_features_root: ${SEEG_OUTPUT_ROOT}/data_derived/region_features
+network_methods:
+- wpli2_debiased
+- imcoh
+windows:
+- baseline
+- early_ictal
+frequency_bands:
+- delta
+- theta
+- alpha
+- beta
+- low_gamma
+- high_gamma
+- ripple
+- fast_ripple
+matrix_value_transforms:
+  wpli2_debiased: clip_negative_to_zero
+  imcoh: absolute_value
+region_key_columns:
+- desikan_killiany_label
+- tissue_class
+- is_white_csf_ventricle_unknown
+features:
+  epsilon: 1.0e-06
+  trial_base_features:
+  - within_mean
+  - within_q90
+  - out_mean
+  - out_q90
+  - node_strength_mean_normalized
+  - node_strength_q90_normalized
+  patient_aggregations:
+  - trial_mean
+  - trial_median
+  - trial_iqr
+  - trial_q90
+  - trial_top25_fraction_within_patient
+  qc_fields:
+  - n_region_nodes
+  - n_within_edges
+  - n_out_edges
+  - n_nan_edges
